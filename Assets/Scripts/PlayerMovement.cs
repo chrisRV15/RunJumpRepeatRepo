@@ -5,148 +5,127 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     //Movement
-    public float moveSpeed = 4500f;
-    private float movementMultiplier = 10f;
+    public float moveSpeed = 6f;
+    public float movementMultiplier = 10f;
+    public float airMultiplier = 0.4f;
     float x;
     float z;
-    public bool isGrounded;
     public Transform orientation;
-    public LayerMask WhatGround;
 
     Vector3 moveDirection;
+
+    //Player modifications
+    private float playerHeight = 2f;
+
+    //Ground Dectection
+    public bool isGrounded;
+    public LayerMask whatIsGround;
+    private float groundDistance = 0.4f;
+
+    //Drag
+    private float groundDrag = 6f;
+    private float airDrag = 1f;
 
     //Camera
     public Transform playerCam;
     private float xRotation;
-    private float sensitivity = 50f;
-    private float sensMultiplier = 1f;
-    private float desiredX;
+    public float sensitivity = 10f;
+    private float sensMultiplier = 0.01f;
+    private float yRotation;
+
+    //Jump
+    public float jumpForce = 10f;
+
 
     //RigidBody
     private Rigidbody rb;
 
-    //Jumping
-    private bool readyToJump = true;
-    private float jumpCooldown = 0.15f;
-    public float jumpForce = 550f;
-    bool jumping;
+
 
     //Sliding
-    private Vector3 normalVector = Vector3.up;
-
-    void Awake()
-    {
-        rb = GetComponent<Rigidbody>();
-        r
-    }
-
 
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        rb = GetComponent<Rigidbody>();
+        rb.freezeRotation = true;
     }
 
     void Update()
     {
-        //Core Movement
+        //Core Movement / Input
         x = Input.GetAxis("Horizontal");
         z = Input.GetAxis("Vertical");
-        jumping = Input.GetKeyDown(KeyCode.Space);
+        moveDirection = orientation.forward * x + orientation.right * z;
 
-        Vector3 moveDirection = orientation.forward * z + orientation.right * x;
-
-        //Calling other functions
-        Look();
-
-    }
-
-    //
-    void FixedUpdate()
-    {
-        Movement();
-    }
-
-
-    void Movement()
-    {
-
-        //multipliers for movement
-        float multiplier = 1f;
-        float multiplierV = 1f;
-
-        //Adding Forces
-        rb.AddForce(orientation.transform.forward * z * moveSpeed * Time.deltaTime * multiplier * multiplierV);
-        rb.AddForce(orientation.transform.right * x * moveSpeed * Time.deltaTime * multiplier);
-
-        //Gravity
-        rb.AddForce(Vector3.down * Time.deltaTime * 10);
-
-        //Ready to jump
-        if (readyToJump && jumping)
+        //Jumping cheking
+        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 1, 0), groundDistance, whatIsGround);
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
         }
 
-        //In air
-        if (!isGrounded)
-        {
-            multiplier = 0.05f;
-            multiplierV = 0.05f;
-        }
+        //Caliing drag control 
+        dragControl();
 
+        //Calling Look
+        Look();
+        playerCam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
+        orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
     }
 
-    //Looking with the camera
+    //Using Fixed update because is better for physics movement
+    void FixedUpdate()
+    {
+        movingPlayer();
+    }
+
+    //Adding Force to the rigidbody
+    void movingPlayer()
+    { 
+        if(isGrounded)
+        {
+        rb.AddForce(moveDirection.normalized* moveSpeed * movementMultiplier, ForceMode.Acceleration);
+        }
+        else if(!isGrounded)
+        {
+            rb.AddForce(moveDirection.normalized * moveSpeed * airMultiplier, ForceMode.Acceleration);
+
+        }
+    }
+
+    //Controlling Drag
+    void dragControl()
+    {
+        if (isGrounded)
+        {
+            rb.drag = groundDrag;
+        }
+        else
+        {
+            rb.drag = airDrag;
+        }
+    }
+
+    //Jump Function
+    void Jump()
+    {
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+    
+
+    //Looking Function
     private void Look()
     {
-        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.fixedDeltaTime * sensMultiplier;
-        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.fixedDeltaTime * sensMultiplier;
+        float mouseX = Input.GetAxis("Mouse X");
+        float mouseY = Input.GetAxis("Mouse Y");
 
-        //Looking for current look rotation
-        Vector3 rot = playerCam.transform.localRotation.eulerAngles;
-        desiredX = rot.y + mouseX;
+        yRotation += mouseX * sensitivity * sensMultiplier;
+        xRotation -= mouseY * sensitivity * sensMultiplier;
 
-
-
-        xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        playerCam.transform.localRotation = Quaternion.Euler(xRotation, desiredX, 0);
-        transform.rotation = Quaternion.Euler(0, desiredX, 0);
     }
-
-    //Jumping function
-    private void Jump()
-    {
-        if (isGrounded && readyToJump)
-        {
-            readyToJump = false;
-
-            //JumpForces
-            rb.AddForce(Vector2.up * jumpForce * 1.5f);
-            rb.AddForce(normalVector * jumpForce * 0.5f);
-
-            //While falling
-            Vector3 veloc = rb.velocity;
-            if (rb.velocity.y < 0.5f)
-            {
-                rb.velocity = new Vector3(veloc.x, 0, veloc.z);
-            }
-            else if (rb.velocity.y > 0)
-            {
-                rb.velocity = new Vector3(veloc.x, veloc.y / 2, veloc.z);
-            }
-            //Reseting y velocity
-
-            Invoke(nameof(resetJump), jumpCooldown);
-        }
-    }
-
-    private void resetJump()
-    {
-        readyToJump = true;
-    }
-
 }
 

@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class MoveCamera : MonoBehaviour
 {
-    public Transform player;
+    public Transform cameraPosition;
 
     void Update()
     {
-        transform.position = player.transform.position;
+        transform.position = cameraPosition.position;
     }
 }
