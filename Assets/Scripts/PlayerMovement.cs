@@ -16,15 +16,17 @@ public class PlayerMovement : MonoBehaviour
 
     //Player modifications
     private float playerHeight = 2f;
+    public float reducedHeight;
 
     //Ground Dectection
     public bool isGrounded;
     public LayerMask whatIsGround;
     private float groundDistance = 0.4f;
+    public Transform groundChecking;
 
     //Drag
-    private float groundDrag = 6f;
-    private float airDrag = 1f;
+    private float groundDrag = 3f;
+    private float airDrag = 1.1f;
 
     //Camera
     public Transform playerCam;
@@ -37,12 +39,22 @@ public class PlayerMovement : MonoBehaviour
     public float jumpForce = 10f;
 
 
-    //RigidBody
+    //RigidBody / Collider
     private Rigidbody rb;
+    private CapsuleCollider collider;
 
+    //Slopes
+    RaycastHit slope;
+    Vector3 slopeDirection;
+
+
+    //Dash 
 
 
     //Sliding
+    public float slidespeed = 10f;
+    public bool isSliding;
+
 
     void Start()
     {
@@ -50,6 +62,9 @@ public class PlayerMovement : MonoBehaviour
         Cursor.visible = false;
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        collider = GetComponent<CapsuleCollider>();
+        playerHeight = collider.height;
+
     }
 
     void Update()
@@ -60,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
         moveDirection = orientation.forward * x + orientation.right * z;
 
         //Jumping cheking
-        isGrounded = Physics.CheckSphere(transform.position - new Vector3(0, 1, 0), groundDistance, whatIsGround);
+        isGrounded = Physics.CheckSphere(groundChecking.position, groundDistance, whatIsGround);
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
@@ -69,10 +84,23 @@ public class PlayerMovement : MonoBehaviour
         //Caliing drag control 
         dragControl();
 
+        //Slope Checking
+        slopeDirection = Vector3.ProjectOnPlane(moveDirection, slope.normal);
+
         //Calling Look
         Look();
         playerCam.transform.localRotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.transform.rotation = Quaternion.Euler(0, yRotation, 0);
+
+        //Slide checking
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            Sliding();
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            goUp();
+        }
     }
 
     //Using Fixed update because is better for physics movement
@@ -84,7 +112,7 @@ public class PlayerMovement : MonoBehaviour
     //Adding Force to the rigidbody
     void movingPlayer()
     { 
-        if(isGrounded)
+        if(isGrounded && !onSlope())
         {
         rb.AddForce(moveDirection.normalized* moveSpeed * movementMultiplier, ForceMode.Acceleration);
         }
@@ -92,6 +120,10 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * airMultiplier, ForceMode.Acceleration);
 
+        }
+        else if (isGrounded && onSlope())
+        {
+            rb.AddForce(slopeDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
         }
     }
 
@@ -111,7 +143,38 @@ public class PlayerMovement : MonoBehaviour
     //Jump Function
     void Jump()
     {
+        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+
+    //Slope function
+    private bool onSlope()
+    {
+        if (Physics.Raycast(transform.position, Vector3.down, out slope, playerHeight / 2 + 0.5f))
+        {
+            if (slope.normal != Vector3.up)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+            return false;
+    }
+
+    //Sliding function
+    void Sliding()
+    {
+        collider.height = reducedHeight;
+        rb.AddForce(moveDirection.normalized * slidespeed, ForceMode.VelocityChange);
+    }
+
+    //After sliding
+    void goUp()
+    {
+        collider.height = playerHeight;
     }
     
 
