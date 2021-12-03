@@ -26,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
     //Drag
     private float groundDrag = 3f;
-    private float airDrag = 1.1f;
+    private float airDrag = 1f;
 
     //Camera
     public Transform playerCam;
@@ -48,7 +48,8 @@ public class PlayerMovement : MonoBehaviour
     Vector3 slopeDirection;
 
 
-    //Dash 
+    //Dash
+    public float buncyHeight;
 
 
     //Sliding
@@ -114,15 +115,18 @@ public class PlayerMovement : MonoBehaviour
     { 
         if(isGrounded && !onSlope())
         {
-        rb.AddForce(moveDirection.normalized* moveSpeed * movementMultiplier, ForceMode.Acceleration);
+            isSliding = true;
+            rb.AddForce(moveDirection.normalized* moveSpeed * movementMultiplier, ForceMode.Acceleration);
         }
         else if(!isGrounded)
         {
+            isSliding = false;
             rb.AddForce(moveDirection.normalized * moveSpeed * airMultiplier, ForceMode.Acceleration);
 
         }
         else if (isGrounded && onSlope())
         {
+            isSliding = true;
             rb.AddForce(slopeDirection.normalized * moveSpeed * movementMultiplier, ForceMode.Acceleration);
         }
     }
@@ -167,8 +171,11 @@ public class PlayerMovement : MonoBehaviour
     //Sliding function
     void Sliding()
     {
-        collider.height = reducedHeight;
-        rb.AddForce(moveDirection.normalized * slidespeed, ForceMode.VelocityChange);
+        if (isSliding)
+        {
+            collider.height = reducedHeight;
+            rb.AddForce(moveDirection.normalized * slidespeed, ForceMode.VelocityChange);
+        }
     }
 
     //After sliding
@@ -177,6 +184,16 @@ public class PlayerMovement : MonoBehaviour
         collider.height = playerHeight;
     }
     
+    //Jump Pad
+    void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("JumpPad"))
+        {
+            rb.AddForce(transform.up * buncyHeight, ForceMode.Impulse);
+        }
+    }
+
+
 
     //Looking Function
     private void Look()
