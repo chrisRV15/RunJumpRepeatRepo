@@ -25,7 +25,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform groundChecking;
 
     //Drag
-    private float groundDrag = 3f;
+    private float groundDrag = 4f;
     private float airDrag = 1f;
 
     //Camera
@@ -48,13 +48,23 @@ public class PlayerMovement : MonoBehaviour
     Vector3 slopeDirection;
 
 
-    //Dash
+    //jumpPad
     public float buncyHeight;
 
 
     //Sliding
     public float slidespeed = 10f;
     public bool isSliding;
+
+    //Dash
+    private float dashforce = 15f;
+    private float dashcoolDown = 2f;
+    private float nextdash = 0f;
+    private bool readyToDash;
+
+    //Death
+    public GameObject deathPanel;
+    
 
 
     void Start()
@@ -101,6 +111,27 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKeyUp(KeyCode.LeftControl))
         {
             goUp();
+        }
+
+        //Dash checking
+        if (Time.time > nextdash)
+        {
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
+                Dash();
+                nextdash = Time.time + dashcoolDown;
+            }
+        }
+
+        //Position
+        if (transform.position.y < -6)
+        {
+            deathPanel.SetActive(true);
+            Cursor.lockState = CursorLockMode.Confined;
+        }
+        else
+        {
+            deathPanel.SetActive(false);
         }
     }
 
@@ -191,6 +222,12 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.AddForce(transform.up * buncyHeight, ForceMode.Impulse);
         }
+    }
+
+    //Dash
+    private void Dash()
+    {
+      rb.AddForce(playerCam.transform.forward * dashforce, ForceMode.VelocityChange);
     }
 
 
