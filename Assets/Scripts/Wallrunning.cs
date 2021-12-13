@@ -23,9 +23,14 @@ public class Wallrunning : MonoBehaviour
     RaycastHit leftWallRay;
     RaycastHit rightWallRay;
 
+    //Audio
+    public AudioClip jumpSound;
+    private AudioSource playerAudio;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        playerAudio = GetComponent<AudioSource>();
     }
 
     
@@ -80,12 +85,14 @@ public class Wallrunning : MonoBehaviour
                 jumpDirection = transform.up + leftWallRay.normal;
                 rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
                 rb.AddForce(jumpDirection * wallJumpForce * 100, ForceMode.Force);
+                playerAudio.PlayOneShot(jumpSound, 1.0f);
             }
             else if(wallRight)
             {
                 jumpDirection = transform.up + rightWallRay.normal;
                 rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
                 rb.AddForce(jumpDirection * wallJumpForce * 100, ForceMode.Force);
+                playerAudio.PlayOneShot(jumpSound, 1.0f);
             }
         }
     }

@@ -6,6 +6,10 @@ using UnityEngine.SceneManagement;
 
 public class Again : MonoBehaviour
 {
+    void Start()
+    {
+    }
+
     public void Retry()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);

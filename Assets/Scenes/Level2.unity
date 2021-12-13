@@ -3050,6 +3050,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1075421504, guid: bad71be28f4380049810423dd6ea6496, type: 3}
+      propertyPath: m_Volume
+      value: 0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 1075421504, guid: bad71be28f4380049810423dd6ea6496, type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 8e3083b03a15c9c4b92958a3837abc2f, type: 3}
     - target: {fileID: 6005915110668316246, guid: bad71be28f4380049810423dd6ea6496, type: 3}
       propertyPath: m_Name
       value: Holder
@@ -4136,7 +4144,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3840341170128879581, guid: 95864535759eba44f8702479d228e027, type: 3}
       propertyPath: m_Text
-      value: "Congratualations!! \nYou pass the second level"
+      value: "Congratulations!! \nYou pass the second level"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 95864535759eba44f8702479d228e027, type: 3}
@@ -4813,7 +4821,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-153158
+  m_Name: pb_Mesh-185678
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

@@ -15,7 +15,8 @@ public class Won : MonoBehaviour
         {
             setTimer(0);
             wonPanel.SetActive(true);
-            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
     }

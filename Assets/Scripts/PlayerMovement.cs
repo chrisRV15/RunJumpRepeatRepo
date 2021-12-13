@@ -64,7 +64,12 @@ public class PlayerMovement : MonoBehaviour
 
     //Death
     public GameObject deathPanel;
-    
+
+    //Sound
+    public AudioClip jumpSound;
+    private AudioSource playerAudio;
+
+
 
 
     void Start()
@@ -75,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         collider = GetComponent<CapsuleCollider>();
         playerHeight = collider.height;
+        playerAudio = GetComponent<AudioSource>();
 
     }
 
@@ -90,6 +96,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             Jump();
+            playerAudio.PlayOneShot(jumpSound, 1.0f);
         }
 
         //Caliing drag control 
@@ -127,7 +134,8 @@ public class PlayerMovement : MonoBehaviour
         if (transform.position.y < -6)
         {
             deathPanel.SetActive(true);
-            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
         else
         {

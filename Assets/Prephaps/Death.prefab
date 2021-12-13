@@ -502,7 +502,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Welp, you Die...
+  m_Text: 'Welp, you Die...
+
+    Press "esc" key.'
 --- !u!1 &6164352386325539336
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class JumpPad : MonoBehaviour
 {
-    private float bounceHeight = 100f;
+    public AudioClip jumpSound;
+    private AudioSource playerAudio;
 
-    private void onCollisionEnter(Collision collision)
+    void Start()
     {
-        GameObject block = collision.gameObject;
-        Rigidbody rb = block.GetComponent<Rigidbody>();
-        rb.AddForce(transform.up * bounceHeight, ForceMode.Impulse);
+        playerAudio = GetComponent<AudioSource>();
+    }
 
+
+    private void OnCollisionEnter(Collision other)
+    {
+      if(other.gameObject.tag == "Player")
+        {
+            playerAudio.PlayOneShot(jumpSound, 1.0f);
+        }
     }
 }
